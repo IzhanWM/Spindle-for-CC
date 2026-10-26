@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import tempfile
 from typing import Any, Dict, List, Tuple
 
@@ -38,6 +39,18 @@ from .util import truncate_width
 
 HOOK_MARKER = "spindle"          # identifies a legacy hook entry as ours
 HOOK_SUBCOMMAND = "session-start"
+
+
+# A topic tag the agent sometimes carries over from the feed ("LLM: ...",
+# "Show HN: ..."), and the full stop it sometimes ends on. Neither reads well
+# in a spinner. A closing "?" or "!" is part of the hook and stays.
+_TOPIC_TAG_RE = re.compile(r"^(?:(?:Show|Ask|Tell|Launch) HN|[A-Z][A-Z0-9]{1,5}):\s+")
+_TRAILING_STOP_RE = re.compile(r"(?<!\.)\.$")
+
+
+def tidy_headline(text: str) -> str:
+    text = _TOPIC_TAG_RE.sub("", text.strip())
+    return _TRAILING_STOP_RE.sub("", text).rstrip()
 
 
 def build_display(story: Story, cfg: Config) -> str:
@@ -53,7 +66,7 @@ def build_display(story: Story, cfg: Config) -> str:
     serves as the truncation indicator.
     """
     budget = max(8, int(cfg.max_title_width))
-    return truncate_width((story.ai_headline or "").strip(), budget)
+    return truncate_width(tidy_headline(story.ai_headline or ""), budget)
 
 
 def build_verbs(pool: List[Story], cfg: Config) -> List[str]:

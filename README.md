@@ -31,9 +31,11 @@ and **nothing of spindle's runs while Claude is actually thinking.**
   [mod](https://code.claude.com/docs/en/plugins/mods/overview), so it needs
   Claude Code 2.1.287 or newer.
 
-In the Desktop app the headline shows while Claude thinks or writes. When the
-row is describing a tool step, like `Editing app.ts`, that step stays in view:
-the news never hides what Claude is doing.
+In the Desktop app the headline takes the whole row while Claude thinks or
+writes, as it does in the terminal: `Apple ships Swift 6.2…`, with no
+`Working…` or `Thinking` around it. When the row is describing a tool step,
+like `Editing app.ts`, or a state, like `Compacting conversation`, the app's
+own row stays in view: the news never hides what Claude is doing.
 
 ---
 
@@ -69,7 +71,7 @@ Installing the plugin gave Claude Code:
 2. A **`headline-writer` agent** that cleans every feed title into a tight
    spinner label. Only cleaned headlines ever reach the spinner.
 3. A few **`/spindle:` commands** (below).
-4. A **mod** (`hooks/spinner.ts`) that shows the same headlines in the Desktop
+4. A **mod** (`hooks/spinner.tsx`) that shows the same headlines in the Desktop
    app's spinner row, which doesn't read the `spinnerVerbs` setting the
    terminal uses.
 
@@ -219,9 +221,9 @@ Spindle-for-CC/
 │   └── marketplace.json        # this repo is its own marketplace
 ├── hooks/
 │   ├── hooks.json              # SessionStart → spindle session-start; loads the mod
-│   └── spinner.ts              # mod: headlines in the Desktop app's spinner row
+│   └── spinner.tsx             # mod: headlines in the Desktop app's spinner row
 ├── types/index.d.ts            # the mod's $.state contract
-├── tests/spinner.test.ts       # the mod's tests (`claude plugin test .`)
+├── tests/spinner.test.tsx      # the mod's tests (`claude plugin test .`)
 ├── tsconfig.json               # type-checks the mod (`tsc -p .`)
 ├── agents/headline-writer.md   # the headline-rewriting agent
 ├── skills/                     # /spindle:status, refresh, configure, reset, uninstall

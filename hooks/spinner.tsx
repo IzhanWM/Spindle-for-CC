@@ -4,12 +4,14 @@
 // The terminal needs none of this. It samples its spinner word from the
 // `spinnerVerbs` key the SessionStart hook writes, and the Desktop app draws
 // its own row and ignores that key. So this module reads the same list back
-// through `$.settings.read()`, picks one headline per turn, and swaps it into
-// the Desktop row's word. The work happens once, as the turn starts; drawing
-// the row only reads the pick.
+// through `$.settings.read()`, picks one headline per turn, and draws the
+// Desktop row as that headline alone, the way the terminal shows it: no
+// `Working…` before it, no `Thinking` after. The work happens once, as the
+// turn starts; drawing the row only reads the pick.
 //
-// Where the row describes a tool step (`Editing app.ts`), that step stays: a
-// headline never hides what Claude is doing.
+// Where the row describes a tool step (`Editing app.ts`) or a state
+// (`Compacting conversation`), the row is the app's own: a headline never
+// hides what Claude is doing.
 
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
@@ -74,13 +76,18 @@ export const register: Register = on => {
   // Desktop only: the terminal already shows the headline through
   // `spinnerVerbs`, and its spinner redraws never reach this module.
   on('ui.render', { component: 'Spinner', surface: 'desktop' }, async ($, e, next) => {
-    const { word, message, mode } = e.props
-    // A state message (compacting, retrying, ...) outranks any word.
+    const { word, message, mode, suffix } = e.props
     if (message !== null) return next(e)
     const isToolStep = (mode === 'tool-use' || mode === 'tool-input') && word !== IDLE_WORD
     if (isToolStep) return next(e)
     const current = await read($, headline)
     if (current === null) return next(e)
-    return next({ ...e, props: { ...e.props, word: current } })
+    const { Text } = $.ui.resolve(e)
+    return (
+      <Text dimColor wrap="truncate-end">
+        {current}
+        {suffix}
+      </Text>
+    )
   })
 }
