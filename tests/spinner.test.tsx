@@ -28,11 +28,17 @@ async function turn($: Engine) {
   await $.turn.start({ text: 'hi', turnId: `turn-${turns}` })
 }
 
-/** What the row shows: the mod's text, or the app's own row as `row`. */
+/** What the row shows: the mod's texts in order, or the app's own row as `row`. */
 function shown(tree: RenderElement): string {
   if (tree.type === 'engine') return 'row'
-  if (tree.type !== 'Text') return `<${tree.type}>`
-  return (tree.children ?? []).map(c => (typeof c === 'string' ? c : shown(c))).join('')
+  if (tree.type === 'Text') return text(tree)
+  if (tree.type !== 'Box') return `<${tree.type}>`
+  return (tree.children ?? []).map(c => (typeof c === 'string' ? c : shown(c))).join(' ')
+}
+
+function text(tree: RenderElement): string {
+  if (tree.type !== 'Text') return ''
+  return (tree.children ?? []).map(c => (typeof c === 'string' ? c : text(c))).join('')
 }
 
 async function draw($: Engine, surface: RenderSurface, props: Partial<Spinner> = {}) {
@@ -45,10 +51,10 @@ async function draw($: Engine, surface: RenderSurface, props: Partial<Spinner> =
   return shown(tree)
 }
 
-const LINES = POOL.map(h => `${h}…`)
+const LINES = POOL.map(h => `✻ ${h}…`)
 
 describe('desktop spinner', () => {
-  test('shows a headline alone, with the row\'s ellipsis', async ($, on) => {
+  test('shows a headline after the mark, with the row\'s ellipsis', async ($, on) => {
     engine(on, () => POOL)
     await turn($)
     expect(LINES).toContain(await draw($, 'desktop'))
@@ -81,7 +87,7 @@ describe('desktop spinner', () => {
     await turn($)
     pool = ['Go 1.26 ships']
     await turn($)
-    expect(await draw($, 'desktop')).toBe('Go 1.26 ships…')
+    expect(await draw($, 'desktop')).toBe('✻ Go 1.26 ships…')
   })
 
   test('leaves a tool step to the app', async ($, on) => {

@@ -32,8 +32,9 @@ and **nothing of spindle's runs while Claude is actually thinking.**
   Claude Code 2.1.287 or newer.
 
 In the Desktop app the headline takes the whole row while Claude thinks or
-writes, as it does in the terminal: `Apple ships Swift 6.2…`, with no
-`Working…` or `Thinking` around it. When the row is describing a tool step,
+writes, as it does in the terminal, with no `Working…` or `Thinking` around
+it: a small mark in Claude's color, then the headline in dim italics,
+`✻ Apple ships Swift 6.2…`. When the row is describing a tool step,
 like `Editing app.ts`, or a state, like `Compacting conversation`, the app's
 own row stays in view: the news never hides what Claude is doing.
 

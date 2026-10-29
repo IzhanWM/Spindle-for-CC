@@ -21,6 +21,9 @@ const headline = atom({ plugin: 'spindle', key: 'headline' } as const, null)
 // What the Desktop row says when it has no step of its own to show.
 const IDLE_WORD = 'Working'
 
+// Drawn before the headline, where the row's own mark would be.
+const MARK = '✻'
+
 function isHeadlineList(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(v => typeof v === 'string')
 }
@@ -82,12 +85,19 @@ export const register: Register = on => {
     if (isToolStep) return next(e)
     const current = await read($, headline)
     if (current === null) return next(e)
-    const { Text } = $.ui.resolve(e)
+    const { Box, Text } = $.ui.resolve(e)
+    // The mark stands in for the row's own, in Claude's color; the headline
+    // after it is dim and italic, an aside rather than a status.
     return (
-      <Text dimColor wrap="truncate-end">
-        {current}
-        {suffix}
-      </Text>
+      <Box flexDirection="row" alignItems="center" columnGap={1}>
+        <Text color="claude">{MARK}</Text>
+        <Box flexShrink={1} minWidth={0}>
+          <Text dimColor italic wrap="truncate-end">
+            {current}
+            {suffix}
+          </Text>
+        </Box>
+      </Box>
     )
   })
 }
