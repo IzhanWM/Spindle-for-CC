@@ -51,7 +51,7 @@ async function draw($: Engine, surface: RenderSurface, props: Partial<Spinner> =
   return shown(tree)
 }
 
-const LINES = POOL.map(h => `✻ ${h}…`)
+const LINES = POOL.map(h => `● ${h}…`)
 
 describe('desktop spinner', () => {
   test('shows a headline after the mark, with the row\'s ellipsis', async ($, on) => {
@@ -87,7 +87,7 @@ describe('desktop spinner', () => {
     await turn($)
     pool = ['Go 1.26 ships']
     await turn($)
-    expect(await draw($, 'desktop')).toBe('✻ Go 1.26 ships…')
+    expect(await draw($, 'desktop')).toBe('● Go 1.26 ships…')
   })
 
   test('leaves a tool step to the app', async ($, on) => {

@@ -22,7 +22,10 @@ const headline = atom({ plugin: 'spindle', key: 'headline' } as const, null)
 const IDLE_WORD = 'Working'
 
 // Drawn before the headline, where the row's own mark would be.
-const MARK = '✻'
+const MARK = '●'
+
+// A mid blue that reads on the app's light and dark backgrounds alike.
+const BLUE = '#3b82f6'
 
 function isHeadlineList(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(v => typeof v === 'string')
@@ -86,13 +89,15 @@ export const register: Register = on => {
     const current = await read($, headline)
     if (current === null) return next(e)
     const { Box, Text } = $.ui.resolve(e)
-    // The mark stands in for the row's own, in Claude's color; the headline
-    // after it is dim and italic, an aside rather than a status.
+    // The mark stands in for the row's own; it and the headline after it are
+    // blue and a size down, so the row reads as a ticker, not a status.
     return (
       <Box flexDirection="row" alignItems="center" columnGap={1}>
-        <Text color="claude">{MARK}</Text>
+        <Text color={BLUE} size="footnote">
+          {MARK}
+        </Text>
         <Box flexShrink={1} minWidth={0}>
-          <Text dimColor italic wrap="truncate-end">
+          <Text color={BLUE} size="footnote" wrap="truncate-end">
             {current}
             {suffix}
           </Text>
